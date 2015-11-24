@@ -7,7 +7,13 @@ import java.util.concurrent.Executors;
 import utils.DownloadObject;
 import utils.DownloadRunnable;
 import utils.Parser;
+import utils.Status;
 
+/**
+ * A class with a main method which runs my program and downloads files from a specified webpage.
+ * @author martin
+ *
+ */
 public class NoGUI {
 	public static void main(String[] args) {
 		String folderPath = "C:\\Users\\martin\\Desktop\\imgs\\";
@@ -37,11 +43,11 @@ public class NoGUI {
 		List<String> fileLinks = p.generateLinks();
 		System.out.println("Please input the number of threads: ");
 		numberOfThreads = input.nextInt();
-		while (numberOfThreads > fileLinks.size()) { // If the inputted number
+		while (numberOfThreads > fileLinks.size() || numberOfThreads == 0) { // If the inputted number
 														// of threads is bigger
 														// than the number of
-														// files
-			System.out.println("These are too many threads for the number of files, please input another number: ");
+														// files or the number of threads is 0
+			System.out.println("These are too many threads for the number of files or the number of threads is 0, please input another number: ");
 			numberOfThreads = input.nextInt();
 		}
 		List<DownloadObject> objs = new ArrayList<DownloadObject>();
@@ -49,10 +55,14 @@ public class NoGUI {
 			DownloadObject obj = new DownloadObject(folderInput, fileLink);
 			objs.add(obj);
 		}
-
+		
+		System.out.println("All files are being put in the queue.");
+		System.out.println();
+		
 		ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);
 		DownloadRunnable runnable = null;
 		for (DownloadObject obj : objs) {
+			obj.setStatus(Status.QUEUED);
 			runnable = new DownloadRunnable(obj);
 			pool.execute(runnable);
 		}

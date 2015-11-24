@@ -25,7 +25,8 @@ public class Parser {
 	 */
 	public Parser(String webpage, List<String> fileTypes) {
 		this.webpage = webpage;
-		if (fileTypes.size() == 0) {
+		System.out.println("Filetypes size: " + fileTypes.size());
+		if (fileTypes.size() == 1) {
 			this.fileTypes = new ArrayList<String>();
 			this.fileTypes.add(".jpg");
 		}

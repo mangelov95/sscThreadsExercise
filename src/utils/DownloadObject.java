@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 public class DownloadObject {
 	private String targetFolder;
 	private String fileLink;
+	private Status status;
 	
 	/**
 	 * A constructor which takes a link to the file and the folder where this file should be saved.
@@ -25,6 +26,7 @@ public class DownloadObject {
 	public DownloadObject(String targetFolder, String fileLink) {
 		this.targetFolder = targetFolder;
 		this.fileLink = fileLink;
+		this.status = Status.DEFAULT;
 	}
 	
 	/**
@@ -34,24 +36,47 @@ public class DownloadObject {
 	public DownloadObject(String fileLink) {
 		this.targetFolder = "";
 		this.fileLink = fileLink;
+		this.status = Status.DEFAULT;
 	}
 	
 	/**
 	 * Retrieve the link to the file. Good for debuging.
-	 * @return
+	 * @return The link to the file.
 	 */
 	public String getFileLink() {
 		return fileLink;
 	}
 	
+	/**
+	 * Retrieve the name of the file attatched to the DownloadObject. 
+	 * @return The name of the file.
+	 */
 	public String getFileName() {
 		return fileLink.substring(fileLink.lastIndexOf('/')+1, fileLink.length() );
 	}
 
 	/**
-	 * Method which downloads the specified file to the specified directory.
+	 * Get the status (QUEUED, DOWNLOADING or DOWNLOADED) of the DownloadObject.
+	 * @return
+	 */
+	public Status getStatus() {
+		return status;
+	}
+
+	/**
+	 * Used to set the status(QUEUED, DOWNLOADING or DOWNLOADED) of the DownloadObject.
+	 * @param status A Status value.
+	 */
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	/**
+	 * Method which downloads the specified file to the specified directory. It is using the 
+	 * copyURLToFile method used from the Apache Commons IO library.
 	 */
 	public void download(String threadName) { 
+		this.setStatus(Status.DOWNLOADING);
 		String fileName = this.getFileName();
 		System.out.println("File " + fileName + " started downloading using " + threadName);
 		URL source;
@@ -65,5 +90,6 @@ public class DownloadObject {
 		}
 		
 		System.out.println("File " + fileName + " successfuly downloaded using " + threadName);
+		this.setStatus(Status.DOWNLOADED);
 	}
 }
