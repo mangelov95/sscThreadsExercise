@@ -1,4 +1,17 @@
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchEvent.Modifier;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -26,11 +39,28 @@ public class NoGUI {
 		Scanner input = new Scanner(System.in);
 		System.out.println("Please input a link: ");
 		link = input.nextLine();
+		while (link.equals("")) {
+			System.out.println("Please input a valid link: ");
+			link = input.nextLine();
+		}
 		System.out.println("Please input a folder: ");
 		folderInput = input.nextLine();
-		if (folderInput.charAt(folderInput.length() - 1) != '\\') {
-			folderInput = folderInput + "\\";
+		while (folderInput.equals("")) {
+			System.out.println("Please input a valid folder: ");
+			folderInput = input.nextLine();
+			if (folderInput.charAt(folderInput.length() - 1) != '/') {
+				folderInput = folderInput + "/";
+			}
 		}
+		Path path = Paths.get(folderInput);
+		if (!Files.exists(path)) {
+			System.out.println("Folder doesn't exist. Please input a new folder: ");
+			folderInput = input.nextLine();
+			if (folderInput.charAt(folderInput.length() - 1) != '/') {
+				folderInput = folderInput + "/";
+			}
+		}
+		
 		while (!fileType.contains("end")) {
 			System.out.println("Please write a file type and press Enter or type 'end' to continue");
 			fileType = input.nextLine();
@@ -55,17 +85,15 @@ public class NoGUI {
 			DownloadObject obj = new DownloadObject(folderInput, fileLink);
 			objs.add(obj);
 		}
-		
-		System.out.println("All files are being put in the queue.");
-		System.out.println();
-		
+				
 		ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);
 		DownloadRunnable runnable = null;
 		for (DownloadObject obj : objs) {
-			obj.setStatus(Status.QUEUED);
+			System.out.println("File " + obj.getFileName() + " is being added to the queue.");
 			runnable = new DownloadRunnable(obj);
 			pool.execute(runnable);
 		}
 		pool.shutdown();
+
 	}
 }
